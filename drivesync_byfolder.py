@@ -13,7 +13,7 @@ downloaded = None
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/drive']
-sync_path = r"data/files"
+sync_path = r"data\files"
 
 def main():
     downloaded = 0
@@ -65,7 +65,13 @@ def main():
     results_count = service.files().list(q=f"mimeType!='application/vnd.google-apps.folder' ",
                                    pageSize=ammount, fields="nextPageToken, files(id, name, size)").execute()
     counts = results_count.get('files', [])
+    alltotalsize = 0
+    for count in counts:
+        countsize = int(count['size'])
+        alltotalsize += countsize
     total = len(counts)
+
+    print(f'{total} files found, {round(float(alltotalsize) / 1048576, 2)}MB')
 
 
 
@@ -142,7 +148,9 @@ def main():
                         remotesize = int(item['size'])
                         downloaded += 1
                         totalsize += remotesize
-                        print(f'{downloaded}/{total}\n\n')
+                        print(f'{downloaded}/{total}')
+                        percent = totalsize / alltotalsize * 100
+                        print(f'Total: {round(float(totalsize) / 1048576, 2)}MB of {round(float(alltotalsize) / 1048576, 2)}MB downloaded ({round(float(percent), 2)}%)\n\n')
 
     totalsizeinmb = round(float(totalsize) / 1048576, 2)
     print(f'\nTotal files downloaded: {downloaded} ({totalsizeinmb}MB)')
