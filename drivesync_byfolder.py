@@ -13,7 +13,7 @@ downloaded = None
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/drive']
-sync_path = r"data\files"
+sync_path = r"data/files"
 
 def main():
     downloaded = 0
@@ -60,6 +60,14 @@ def main():
             service.files().delete(fileId=file_id).execute()
         except errors.HttpError as error:
             print('An error occurred: %s' % error)
+
+    # COUNT ALL FILES
+    results_count = service.files().list(q=f"mimeType!='application/vnd.google-apps.folder' ",
+                                   pageSize=ammount, fields="nextPageToken, files(id, name, size)").execute()
+    counts = results_count.get('files', [])
+    total = len(counts)
+
+
 
 
     # LIST ALL FOLDERS
@@ -134,7 +142,7 @@ def main():
                         remotesize = int(item['size'])
                         downloaded += 1
                         totalsize += remotesize
-                        print(f'{downloaded}/{ammount}\n\n')
+                        print(f'{downloaded}/{total}\n\n')
 
     totalsizeinmb = round(float(totalsize) / 1048576, 2)
     print(f'\nTotal files downloaded: {downloaded} ({totalsizeinmb}MB)')
